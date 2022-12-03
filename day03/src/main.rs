@@ -30,16 +30,10 @@ fn main() -> Result<()> {
 fn puzzle_1(input: &[Vec<char>]) -> Result<u64> {
     let mut sum = 0;
     for content in input {
-        let first_half = HashSet::<char>::from_iter(content[0..content.len() / 2].iter().copied());
-        let second_half =
-            HashSet::<char>::from_iter(content[content.len() / 2..content.len()].iter().copied());
-
-        let common_item = first_half
-            .intersection(&second_half)
-            .into_iter()
-            .next()
-            .ok_or_else(|| anyhow!("No intersection found!"))?
-            .to_owned();
+        let common_item = get_common_item(&[
+            content[0..content.len() / 2].into(),
+            content[content.len() / 2..content.len()].into(),
+        ])?;
 
         sum += get_point(common_item)?;
     }
@@ -51,20 +45,30 @@ fn puzzle_2(input: &[Vec<char>]) -> Result<u64> {
     let mut sum = 0;
 
     for group in input.chunks(3) {
-        let elf1 = HashSet::<char>::from_iter(group[0].iter().cloned());
-        let elf2 = HashSet::<char>::from_iter(group[1].iter().cloned());
-        let elf3 = HashSet::<char>::from_iter(group[2].iter().cloned());
-
-        let common_item = elf1
-            .intersection(&elf2.intersection(&elf3).cloned().collect::<HashSet<_>>())
-            .next()
-            .ok_or_else(|| anyhow!("No intersection found!"))?
-            .to_owned();
+        let common_item = get_common_item(group)?;
 
         sum += get_point(common_item)?;
     }
 
     Ok(sum)
+}
+
+fn get_common_item(groups: &[Vec<char>]) -> Result<char> {
+    let sets: Vec<_> = groups
+        .iter()
+        .map(|group| HashSet::<char>::from_iter(group.iter().cloned()))
+        .collect();
+
+    let mut common = sets[0].clone();
+
+    for set in sets.iter().skip(1) {
+        common = common.intersection(set).cloned().collect();
+    }
+
+    common
+        .into_iter()
+        .next()
+        .ok_or_else(|| anyhow!("No intersection found!"))
 }
 
 fn get_point(c: char) -> Result<u64> {

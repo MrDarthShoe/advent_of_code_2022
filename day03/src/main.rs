@@ -20,9 +20,9 @@ fn main() -> Result<()> {
     println!("puzzle1: {output_1}");
     assert_eq!(8243, output_1);
 
-    // let output_2 = puzzle_2(&input);
-    // println!("puzzle2: {output_2}");
-    // assert_eq!(207576, output_2);
+    let output_2 = puzzle_2(&input)?;
+    println!("puzzle2: {output_2}");
+    assert_eq!(2631, output_2);
 
     Ok(())
 }
@@ -37,6 +37,26 @@ fn puzzle_1(input: &[Vec<char>]) -> Result<u64> {
         let common_item = first_half
             .intersection(&second_half)
             .into_iter()
+            .next()
+            .ok_or_else(|| anyhow!("No intersection found!"))?
+            .to_owned();
+
+        sum += get_point(common_item)?;
+    }
+
+    Ok(sum)
+}
+
+fn puzzle_2(input: &[Vec<char>]) -> Result<u64> {
+    let mut sum = 0;
+
+    for group in input.chunks(3) {
+        let elf1 = HashSet::<char>::from_iter(group[0].iter().cloned());
+        let elf2 = HashSet::<char>::from_iter(group[1].iter().cloned());
+        let elf3 = HashSet::<char>::from_iter(group[2].iter().cloned());
+
+        let common_item = elf1
+            .intersection(&elf2.intersection(&elf3).cloned().collect::<HashSet<_>>())
             .next()
             .ok_or_else(|| anyhow!("No intersection found!"))?
             .to_owned();

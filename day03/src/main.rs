@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use std::{
+    collections::HashSet,
     fs::File,
     io::{BufRead, BufReader},
 };
@@ -29,15 +30,18 @@ fn main() -> Result<()> {
 fn puzzle_1(input: &[Vec<char>]) -> Result<u64> {
     let mut sum = 0;
     for content in input {
-        'outer: for i in 0..content.len() / 2 {
-            for j in content.len() / 2..content.len() {
-                if content[i] == content[j] {
-                    sum += get_point(content[i])?;
+        let first_half = HashSet::<char>::from_iter(content[0..content.len() / 2].iter().copied());
+        let second_half =
+            HashSet::<char>::from_iter(content[content.len() / 2..content.len()].iter().copied());
 
-                    break 'outer;
-                }
-            }
-        }
+        let common_item = first_half
+            .intersection(&second_half)
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow!("No intersection found!"))?
+            .to_owned();
+
+        sum += get_point(common_item)?;
     }
 
     Ok(sum)
@@ -45,9 +49,9 @@ fn puzzle_1(input: &[Vec<char>]) -> Result<u64> {
 
 fn get_point(c: char) -> Result<u64> {
     if c.is_ascii_lowercase() {
-        Ok(c as u64 - 96)
-    } else if c.is_uppercase() {
-        Ok(c as u64 - 38)
+        Ok(c as u64 - 'a' as u64 + 1)
+    } else if c.is_ascii_uppercase() {
+        Ok(c as u64 - 'A' as u64 + 27)
     } else {
         Err(anyhow!("Invalid character"))
     }

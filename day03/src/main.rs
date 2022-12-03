@@ -54,10 +54,10 @@ fn puzzle_2(input: &[Vec<char>]) -> Result<u64> {
 }
 
 fn get_common_item(groups: &[Vec<char>]) -> Result<char> {
-    let sets: Vec<_> = groups
+    let sets = groups
         .iter()
         .map(|group| HashSet::<char>::from_iter(group.iter().cloned()))
-        .collect();
+        .collect::<Vec<_>>();
 
     let mut common = sets[0].clone();
 

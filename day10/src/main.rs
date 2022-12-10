@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
 use std::{
-    collections::HashSet,
     fs::File,
     io::{BufRead, BufReader},
     vec,
@@ -39,9 +38,7 @@ fn main() -> Result<()> {
     println!("puzzle1: {output_1}");
     assert_eq!(15680, output_1);
 
-    let output_2 = puzzle_2(input);
-    // println!("puzzle2: {output_2}");
-    // assert_eq!(2405, output_2);
+    puzzle_2(input);
 
     Ok(())
 }
@@ -57,19 +54,19 @@ fn puzzle_1(input: &[Instruction]) -> i32 {
             Instruction::Noop => {
                 println!("{cycle} {x}, noop");
                 if is_cycle_interesting(cycle) {
-                    sum = sum + (cycle * x);
+                    sum += cycle * x;
                 }
                 cycle += 1;
             }
             Instruction::AddX(value) => {
                 println!("{cycle} {x}, nop {value}");
                 if is_cycle_interesting(cycle) {
-                    sum = sum + (cycle * x);
+                    sum += cycle * x;
                 }
                 cycle += 1;
                 println!("{cycle} {x}, addx {value}");
                 if is_cycle_interesting(cycle) {
-                    sum = sum + (cycle * x);
+                    sum += cycle * x;
                 }
                 x += value;
                 cycle += 1;
@@ -110,7 +107,7 @@ fn puzzle_2(mut input: Vec<Instruction>) {
 fn print_crt(cycle: i32, x: i32) {
     let cursor = (cycle - 1) % 40;
     if cursor == 0 {
-        print!("\n");
+        println!();
     }
 
     if cursor == x + 1 || cursor == x - 1 || cursor == x {
